@@ -1,0 +1,40 @@
+body {
+    width: 250px;
+    margin-top: 7px;
+    margin-bottom: 7px;
+    margin-left: 10px;
+    margin-right: 10px;
+
+    color: #333333;
+    font-family: Georgia, serif;
+    font-size: 14px;
+}
+
+h1 {
+    text-align: center;
+    color: #333333;
+    font-family: 'Bitter', serif;
+    font-size: 23px;
+    font-weight: normal;
+}
+
+.line {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 10px;
+    margin-bottom: 10px;
+}
+
+.line__description {
+    width: 60%;
+}
+
+.line__button {
+    display: flex;
+    justify-content: flex-end;
+    width: 40%;
+}
+
+.line__button button, .line__button input {
+    width: 90%;
+}
