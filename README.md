@@ -2,14 +2,15 @@
 *Google Chrome web browser*
 
 ## Why to use this extension
-Save open tab URLs and reopen them
+Save open tab URLs into local `<file.txt>` and reopen them:
 - on another PC
 - on the same PC but another OS
 - when they've lost
 
-## Features
-- save all open tab URLs into local `<file.txt>`
-- using `<file.txt>`, reopen all tabs
+### It supports:
+- multiple windows
+- pinned tabs
+- grouped tabs
 
 ## Next plans:
 - optionally save tabs only of the current window
