@@ -1,7 +1,7 @@
 {
     "name": "Save Open Tab URLs",
-    "description": "Save open tab URLs and reopen them on another PC, on the same PC but another OS, or when they've lost.",
-    "version": "1.0.0",
+    "description": "Save open tab URLs and reopen them on another PC, on the same PC under another OS, or when they've been lost.",
+    "version": "1.1.1",
     "manifest_version": 3,
     "permissions": ["tabs", "tabGroups"],
     "action": {
