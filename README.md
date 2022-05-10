@@ -1,5 +1,5 @@
 # Save Open Tab URLs
-*Google Chrome web browser*
+*Google Chrome 89+*
 
 ## Why to use this extension
 Save open tab URLs into local `<file.txt>` and reopen them:
