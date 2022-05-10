@@ -1,6 +1,6 @@
 function getTabPropsForSaving(chromeTab) {
   return {
-    // groupId: chromeTab.groupId, TODO: next feature
+    groupId: chromeTab.groupId,
     pinned: chromeTab.pinned,
     url: chromeTab.url,
     windowId: chromeTab.windowId,
@@ -47,14 +47,36 @@ function openTabs() {
     }, {});
 
     // open tabs for each window
+    const usedGroupIds = {};
+
     // eslint-disable-next-line
     for (const [_, tabArray] of Object.entries(windowToTabs)) {
       // eslint-disable-next-line
-      chrome.windows.create({}, (newWindow) => {
-        tabArray.forEach((tabObj) => {
+      chrome.windows.create({}, async (newWindow) => {
+        for (let i = 0; i < tabArray.length; ++i) {
+          const tabObj = tabArray[i];
+
           // eslint-disable-next-line
-          chrome.tabs.create({ ...tabObj, windowId: newWindow.id });
-        });
+          const newTab = await chrome.tabs.create({
+            pinned: tabObj.pinned,
+            url: tabObj.url,
+            windowId: newWindow.id,
+          });
+
+          if (tabObj.groupId != -1) {
+            const tabGroupProps = {
+              tabIds: newTab.id,
+              ...(Object.prototype.hasOwnProperty.call(usedGroupIds, tabObj.groupId)
+                    // join an existing group
+                    ? { groupId : usedGroupIds[tabObj.groupId] }
+                    // a new group will be created
+                    : { createProperties : { windowId: newWindow.id } }),
+            };
+
+            const groupId = await chrome.tabs.group(tabGroupProps);
+            usedGroupIds[tabObj.groupId] = groupId;
+          }
+        };
       });
     }
   };
