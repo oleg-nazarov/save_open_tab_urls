@@ -1,28 +1,47 @@
 function getTabPropsForSaving(chromeTab) {
   return {
-    // groupId: chromeTab.groupId, TODO: next feature
+    groupId: chromeTab.groupId,
     pinned: chromeTab.pinned,
     url: chromeTab.url,
     windowId: chromeTab.windowId,
   };
 }
+function getGroupPropsForSaving(group) {
+  return {
+    collapsed: group.collapsed,
+    color: group.color,
+    title: group.title,
+  };
+}
 
-function downloadUrls() {
+async function downloadTabInfo() {
+  const allTabInfo = { tabs: [], groups: {} };
+
   // eslint-disable-next-line
-  chrome.tabs.query({}, (tabs) => {
-    // prepare urls
-    const urlArray = tabs.map((chromeTab) => {
-      const tab = getTabPropsForSaving(chromeTab);
-      return JSON.stringify(tab);
-    });
+  const tabs = await chrome.tabs.query({});
+  
+  for (let i = 0; i < tabs.length; ++i) {
+    // 1. get tabs info
+    const newTab = getTabPropsForSaving(tabs[i]);
+    allTabInfo.tabs.push(newTab);
+    
+    // 2. get groups info
+    if (
+      newTab.groupId == -1 ||
+      Object.prototype.hasOwnProperty.call(allTabInfo.groups, newTab.groupId)
+    ) {
+      continue;
+    }
+    const chromeGroup = await chrome.tabGroups.get(newTab.groupId);
+    allTabInfo.groups[newTab.groupId] = getGroupPropsForSaving(chromeGroup);
+  };
 
-    // download urls
-    const saver = document.createElement('a');
-    saver.setAttribute('download', 'tab_urls.txt');
-    saver.setAttribute('href', `data:text/plain,${urlArray.join('\n')}`);
+  // download info
+  const saver = document.createElement('a');
+  saver.setAttribute('download', 'tabs.txt');
+  saver.setAttribute('href', `data:text/plain,${JSON.stringify(allTabInfo)}`);
 
-    saver.click();
-  });
+  saver.click();
 }
 
 function openTabs() {
@@ -32,29 +51,57 @@ function openTabs() {
   const reader = new FileReader();
 
   reader.onload = () => {
-    // handle errors when not all of data are correct
+    // TODO: handle errors when not all of data are correct
+    
+    const allTabInfo = JSON.parse(reader.result);
 
     // separate tabs according to their window belongings
-    const windowToTabs = reader.result.split('\n').reduce((acc, tabString) => {
-      const tabObj = JSON.parse(tabString);
-
-      if (!Object.prototype.hasOwnProperty.call(acc, tabObj.windowId)) {
-        acc[tabObj.windowId] = [];
+    const windowToTabs = allTabInfo.tabs.reduce((acc, tab) => {
+      if (!Object.prototype.hasOwnProperty.call(acc, tab.windowId)) {
+        acc[tab.windowId] = [];
       }
-      acc[tabObj.windowId].push(tabObj);
+      acc[tab.windowId].push(tab);
 
       return acc;
     }, {});
 
-    // open tabs for each window
+    // 1. open tabs for each window
+    const usedGroupIds = {};
+
     // eslint-disable-next-line
     for (const [_, tabArray] of Object.entries(windowToTabs)) {
       // eslint-disable-next-line
-      chrome.windows.create({}, (newWindow) => {
-        tabArray.forEach((tabObj) => {
+      chrome.windows.create({}, async (newWindow) => {
+        for (let i = 0; i < tabArray.length; ++i) {
+          const tab = tabArray[i];
+
           // eslint-disable-next-line
-          chrome.tabs.create({ ...tabObj, windowId: newWindow.id });
-        });
+          const newTab = await chrome.tabs.create({
+            pinned: tab.pinned,
+            url: tab.url,
+            windowId: newWindow.id,
+          });
+
+          // 2. add the tab to a group
+          if (tab.groupId != -1) {
+            const tabGroupProps = {
+              tabIds: newTab.id,
+              ...(Object.prototype.hasOwnProperty.call(usedGroupIds, tab.groupId)
+                    // join an existing group
+                    ? { groupId : usedGroupIds[tab.groupId] }
+                    // a new group will be created
+                    : { createProperties : { windowId: newWindow.id } }),
+            };
+
+            const newGroupId = await chrome.tabs.group(tabGroupProps);
+            
+            // 3. update group info (color, title, collapsed)
+            const groupInfo = allTabInfo.groups[tab.groupId];
+            chrome.tabGroups.update(newGroupId, groupInfo);
+            
+            usedGroupIds[tab.groupId] = newGroupId;
+          }
+        };
       });
     }
   };
@@ -64,7 +111,7 @@ function openTabs() {
   // TODO: reader.onerror
 }
 
-document.getElementById('download_id').onclick = downloadUrls;
+document.getElementById('download_id').onclick = downloadTabInfo;
 document.getElementById('open_tabs_id').onchange = openTabs;
 
 document.getElementById('file_button_id').onclick = () => {

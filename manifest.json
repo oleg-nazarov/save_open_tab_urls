@@ -3,7 +3,7 @@
     "description": "Save open tab URLs and reopen them on another PC, on the same PC but another OS, or when they've lost.",
     "version": "1.0.0",
     "manifest_version": 3,
-    "permissions": ["tabs"],
+    "permissions": ["tabs", "tabGroups"],
     "action": {
         "default_popup": "popup.html",
         "default_icon": {
