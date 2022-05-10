@@ -5,15 +5,15 @@
 Save open tab URLs into local `<file.txt>` and reopen them:
 - on another PC
 - on the same PC under another OS
-- when they've lost
+- when they've been lost
 
 #### Supports
 - multiple windows
+- tab groupss
 - pinned tabs
-- tab groups
 
 ## How to use
-1. (Soon: visit Chrome Web Store)
+1. (Soon: Chrome Web Store)
 
 2. Manually:
 - download the `.zip` archive and unzip it
@@ -23,7 +23,7 @@ Save open tab URLs into local `<file.txt>` and reopen them:
 - enjoy!
 
 ## Next plans:
-- on error, while reading a certain tab, continue reading others but show a warning for a user that he could do something about corrupted lines
+- on error, while reading a certain tab, continue reading others but show a warning for a user that he should do something about corrupted lines
 - optionally save incognito tabs
 - optionally save tabs only of the current window
 - show how many tab URLs will be saved and the titles

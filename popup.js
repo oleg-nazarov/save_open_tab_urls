@@ -49,13 +49,11 @@ async function downloadTabData() {
 }
 
 function openTabs() {
-  // TODO: show an error in the popup, e.g. when unknown property like "#%$^&*"
-
   const file = document.getElementById('open_tabs_id').files[0];
   const reader = new FileReader();
 
   reader.onload = () => {
-    // TODO: handle errors when not all of data are correct
+    // TODO: handle errors and show it in the popup when not all of data are correct
     
     const allTabData = JSON.parse(decodeURIComponent(reader.result));
 
@@ -74,6 +72,9 @@ function openTabs() {
 
     for (const [_, tabArray] of Object.entries(windowToTabs)) {
       chrome.windows.create({}, async (newWindow) => {
+        // delete it in the end
+        const emptyDefaultTab = newWindow.tabs[0];
+
         for (let i = 0; i < tabArray.length; ++i) {
           const tab = tabArray[i];
 
@@ -101,6 +102,8 @@ function openTabs() {
             usedGroupIds[tab.groupId] = newGroupId;
           }
         };
+
+        chrome.tabs.remove(emptyDefaultTab.id);
       });
     }
   };
@@ -116,13 +119,3 @@ document.getElementById('open_tabs_id').onchange = openTabs;
 document.getElementById('file_button_id').onclick = () => {
   document.getElementById('open_tabs_id').click();
 };
-
-// TODO:
-// there is a redundant empty tab in the new window
-
-// TODO:
-// - move the logic of reading and writing the json
-// - beautiful structure in .txt
-
-// TODO:
-// error: activating a tab that is inside a collapsed group
