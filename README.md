@@ -13,7 +13,7 @@ Save open tab URLs into local `<file.txt>` and reopen them:
 - pinned tabs
 
 ## How to use
-1. (Soon: Chrome Web Store)
+1. [Chrome Web Store](https://chrome.google.com/webstore/detail/save-open-tab-urls/kmlgdbibjclcfcagnfmkhfkbbaabakee)
 
 2. Manually:
 - download the latest release archive and unzip it
